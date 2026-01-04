@@ -9,8 +9,8 @@
 
 ## 2. 実装方針
 - **画像・メディア**:
-  - `public/images/home/home.jpg` (Home用)
-  - `public/images/gallery/` 配下の画像 (Works用)
+  - `src/assets/images/home/home.jpg` (Home用)
+  - `src/assets/images/gallery/` 配下の画像 (Works用)
   - 画像はViteの `import.meta.glob` 機能を使って動的に読み込むか、API経由でURLリストを取得することを想定して実装する。
 - **スタイリング**: `@emotion/styled` を使用。
 - **アニメーション**: `framer-motion` を使用し、スクロールに応じて各セクションが「ふわっ」と現れる演出を実装。
@@ -61,7 +61,7 @@
 
 #### 1. HOME (`/`)
 - **First View (Hero)**:
-  - 画像 (`home.jpg`) を `100vh` (画面いっぱい) に表示。
+  - 画像 (`src/assets/images/home/home.jpg`) を `100vh` (画面いっぱい) に表示。
   - `object-fit: cover` を使用し、スマホでもPCでも画像が歪まないようにする。
 - **スクロール体験**:
   - スクロールで Works Preview -> Schedule Preview -> Contact Link が順次フェードイン。
