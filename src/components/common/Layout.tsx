@@ -3,7 +3,7 @@ import { Global } from '@emotion/react';
 import { globalStyles } from '../../styles/global';
 import { Navigation } from './Navigation';
 import { SNSLinks } from './SNSLinks';
-import { media } from '../../styles/media';
+
 import type { ReactNode } from 'react';
 
 const Main = styled.main`
@@ -24,20 +24,20 @@ const FixedSNSWrapper = styled.div`
 `;
 
 interface LayoutProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const Layout = ({ children }: LayoutProps) => {
-    return (
-        <>
-            <Global styles={globalStyles} />
-            <Main>
-                <Navigation />
-                <FixedSNSWrapper>
-                    <SNSLinks />
-                </FixedSNSWrapper>
-                {children}
-            </Main>
-        </>
-    );
+  return (
+    <>
+      <Global styles={globalStyles} />
+      <Main>
+        <Navigation />
+        <FixedSNSWrapper>
+          <SNSLinks />
+        </FixedSNSWrapper>
+        {children}
+      </Main>
+    </>
+  );
 };
