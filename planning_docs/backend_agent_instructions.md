@@ -39,8 +39,9 @@
 - `POST/PUT/DELETE`: (Auth必須) データの更新。画像のアップロード自体はフロントエンドからS3へ直接行い、Lambdaには `imageUrl` 文字列のみを受け渡す設計を推奨。
 
 ### B. ビデオ API (`/videos`)
-- `GET`: `Videos` テーブルから全件取得。
+- `GET`: `Videos` テーブルから全件取得。`displayOrder` で昇順ソートして返却。
 - `POST/PUT/DELETE`: (Auth必須) 動画リンクの追加・編集。
+  - フロントエンドから送られてくるURLが短縮URL(`youtu.be`)か通常URL(`youtube.com`)かに関わらず、**YouTube Video ID** (例: `VyNNztb1Irk`) を抽出して保存することを推奨（埋め込み時に扱いやすいため）。もちろんURLそのものを保存しても良いが、その場合はフロントエンド側でID抽出を行うこと。
 
 ### C. お問い合わせ API (`/contact`)
 - **Method**: POST
