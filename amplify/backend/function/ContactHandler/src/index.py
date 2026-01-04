@@ -4,8 +4,7 @@ from botocore.exceptions import ClientError
 import os
 
 # Configuration
-# TODO: Move to Environment Variables if needed
-SENDER_EMAIL = "rinaharada.piano@gmail.com"  # Must be verified in SES Sandbox
+SENDER_EMAIL = "rinaharada.piano@gmail.com"
 RECIPIENT_EMAIL = "rinaharada.piano@gmail.com"
 REGION = os.environ.get('REGION', 'ap-northeast-1') 
 
@@ -15,48 +14,43 @@ def handler(event, context):
     method = event.get('httpMethod')
     
     if method != 'POST':
-        return {
-            'statusCode': 405,
-            'headers': {
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST'
-            },
-            'body': json.dumps({'error': 'Method not allowed'})
-        }
+        return response(405, {'error': 'Method not allowed'})
 
     try:
         body = json.loads(event.get('body'))
         name = body.get('name')
         email = body.get('email')
         message = body.get('message')
+        source = body.get('source', 'contact') # 'contact', 'lesson', etc.
         
         if not name or not email or not message:
-             return {
-                'statusCode': 400,
-                'headers': {
-                    'Access-Control-Allow-Headers': '*',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST'
-                },
-                'body': json.dumps({'error': 'Missing required fields'})
-            }
+             return response(400, {'error': 'Missing required fields'})
 
-        # Create email body
-        email_subject = f"[Portfolio Contact] Message from {name}"
+        # Subject Logic
+        subject_prefix = "【HP Contact】お問い合わせ"
+        if source == 'lesson':
+            subject_prefix = "【HP Lesson】レッスンのお申し込み"
+        elif source == 'concert':
+            subject_prefix = "【HP Concert】演奏依頼"
+            
+        email_subject = f"{subject_prefix} by {name}"
+
         email_body = f"""
-        You have received a new message from your portfolio website.
+        Webサイトより新しいメッセージが届きました。
         
-        Name: {name}
+        ■送信元 ({source})
+        お名前: {name}
         Email: {email}
         
-        Message:
+        ■メッセージ本文
+        ----------------------------------------
         {message}
+        ----------------------------------------
         """
         
         client = boto3.client('ses', region_name=REGION)
         
-        response = client.send_email(
+        resp = client.send_email(
             Destination={
                 'ToAddresses': [RECIPIENT_EMAIL],
             },
@@ -76,35 +70,22 @@ def handler(event, context):
             ReplyToAddresses=[email]
         )
         
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST'
-            },
-            'body': json.dumps({'message': 'Email sent successfully', 'messageId': response['MessageId']})
-        }
+        return response(200, {'message': 'Email sent successfully', 'messageId': resp['MessageId']})
 
     except ClientError as e:
         print(e)
-        return {
-            'statusCode': 500,
-            'headers': {
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST'
-            },
-            'body': json.dumps({'error': str(e)})
-        }
+        return response(500, {'error': str(e)})
     except Exception as e:
         print(e)
-        return {
-            'statusCode': 400,
-            'headers': {
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST'
-            },
-            'body': json.dumps({'error': 'Invalid request'})
-        }
+        return response(400, {'error': 'Invalid request'})
+
+def response(status_code, body):
+    return {
+        'statusCode': status_code,
+        'headers': {
+            'Access-Control-Allow-Headers': '*',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST'
+        },
+        'body': json.dumps(body)
+    }

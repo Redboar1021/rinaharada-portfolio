@@ -1,12 +1,13 @@
-import { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
-const ContactContainer = styled(motion.div)`
+const LessonContainer = styled(motion.div)`
   width: 100%;
   min-height: 100vh;
-  padding: 160px 40px 120px; 
-  max-width: 900px;
+  padding: 160px 40px 120px;
+  max-width: 900px; 
   margin: 0 auto;
 
   @media (max-width: 768px) {
@@ -29,10 +30,36 @@ const PageTitle = styled.h1`
     margin-bottom: 60px;
   }
 `;
+
+const Description = styled.div`
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem;
+  line-height: 2.2;
+  text-align: justify;
+  margin-bottom: 80px;
+  color: #E0E0E0;
+`;
+
+// Reuse styles from Contact page for consistency, but define locally or extract to common components if needed.
+// For now, redefining specific styled components for the form.
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 30px;
+  padding: 40px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.02);
+`;
+
+const FormTitle = styled.h2`
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 300;
+  color: #F5F5F5;
 `;
 
 const FormGroup = styled.div`
@@ -46,6 +73,7 @@ const Label = styled.label`
   font-size: 0.9rem;
   letter-spacing: 0.1em;
   color: #F5F5F5;
+  text-transform: uppercase;
   opacity: 0.8;
 `;
 
@@ -55,13 +83,12 @@ const Input = styled.input`
   background-color: rgba(255, 255, 255, 0.05);
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  transition: all 0.3s;
+  transition: border-color 0.3s;
   color: #F5F5F5;
   
   &:focus {
     outline: none;
     border-color: #F5F5F5;
-    background-color: rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -71,15 +98,14 @@ const TextArea = styled.textarea`
   background-color: rgba(255, 255, 255, 0.05);
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
-  min-height: 200px;
+  min-height: 150px;
   resize: vertical;
-  transition: all 0.3s;
+  transition: border-color 0.3s;
   color: #F5F5F5;
   
   &:focus {
     outline: none;
     border-color: #F5F5F5;
-    background-color: rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -92,7 +118,8 @@ const SubmitButton = styled(motion.button)`
   font-size: 1rem;
   letter-spacing: 0.1em;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 10px;
+  text-transform: uppercase;
   
   &:disabled {
     background-color: #555;
@@ -110,7 +137,8 @@ const StatusMessage = styled(motion.div) <{ type: 'success' | 'error' }>`
   margin-top: 20px;
 `;
 
-export const Contact = () => {
+export const Lesson = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -129,8 +157,14 @@ export const Contact = () => {
     e.preventDefault();
     setStatus('loading');
 
+    // Prepare payload with source identifier
+    const payload = {
+      ...formData,
+      source: 'Lesson'
+    };
+    console.log('Sending lesson inquiry:', payload);
+
     try {
-      // API call simulation
       await new Promise(resolve => setTimeout(resolve, 1500));
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
@@ -140,17 +174,22 @@ export const Contact = () => {
   };
 
   return (
-    <ContactContainer
+    <LessonContainer
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <PageTitle>CONTACT</PageTitle>
+      <PageTitle>{t('lesson.title')}</PageTitle>
+
+      <Description>
+        {t('lesson.description')}
+      </Description>
 
       <Form onSubmit={handleSubmit}>
+        <FormTitle>INQUIRY</FormTitle>
         <FormGroup>
-          <Label>NAME</Label>
+          <Label>{t('contact.name')}</Label>
           <Input
             type="text"
             name="name"
@@ -161,7 +200,7 @@ export const Contact = () => {
         </FormGroup>
 
         <FormGroup>
-          <Label>EMAIL</Label>
+          <Label>{t('contact.email')}</Label>
           <Input
             type="email"
             name="email"
@@ -172,7 +211,7 @@ export const Contact = () => {
         </FormGroup>
 
         <FormGroup>
-          <Label>MESSAGE</Label>
+          <Label>{t('contact.message')}</Label>
           <TextArea
             name="message"
             required
@@ -187,7 +226,7 @@ export const Contact = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          {status === 'loading' ? 'SENDING...' : status === 'success' ? 'SENT' : 'SEND MESSAGE'}
+          {status === 'loading' ? t('contact.sending') : status === 'success' ? t('contact.sent') : t('contact.send')}
         </SubmitButton>
       </Form>
 
@@ -199,20 +238,10 @@ export const Contact = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            Message sent successfully. Thank you for contacting me.
-          </StatusMessage>
-        )}
-        {status === 'error' && (
-          <StatusMessage
-            type="error"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-          >
-            Failed to send message. Please try again later.
+            Thank you for your inquiry.
           </StatusMessage>
         )}
       </AnimatePresence>
-    </ContactContainer>
+    </LessonContainer>
   );
 };

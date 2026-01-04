@@ -1,79 +1,110 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { mockSchedules, type ScheduleItem } from '../data/mockSchedule';
+import { type ScheduleItem } from '../data/mockSchedule';
+import { fetchSchedules } from '../services/schedule';
 
 const ScheduleContainer = styled(motion.div)`
   width: 100%;
   min-height: 100vh;
-  padding: 120px 20px 100px;
-  max-width: 800px;
+  padding: 160px 40px 120px;
+  max-width: 1000px; 
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 120px 20px 100px;
+  }
 `;
 
 const PageTitle = styled.h1`
-  font-family: 'Noto Serif JP', serif;
-  font-size: 2.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 3.5rem;
   letter-spacing: 0.1em;
-  margin-bottom: 60px;
+  margin-bottom: 80px;
   text-align: center;
   font-weight: 300;
+  text-transform: uppercase;
+  color: #F5F5F5;
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+    margin-bottom: 60px;
+  }
 `;
 
 const SectionTitle = styled.h2`
   font-family: 'Inter', sans-serif;
-  font-size: 1.2rem;
-  margin-top: 60px;
-  margin-bottom: 30px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ddd;
+  font-size: 2rem; 
+  margin-top: 80px; 
+  margin-bottom: 40px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   letter-spacing: 0.1em;
+  font-weight: 400;
+  color: #F5F5F5;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-top: 60px;
+  }
 `;
 
 const EventList = styled.ul`
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 40px; 
+  color: #F5F5F5;
+
+  @media (max-width: 768px) {
+    gap: 30px;
+  }
 `;
 
 const EventItem = styled(motion.li)`
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 20px;
+  grid-template-columns: 180px 1fr; 
+  gap: 40px;
   padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 `;
 
 const EventDate = styled.div`
   font-family: 'Inter', sans-serif;
   font-weight: 500;
-  color: #666;
+  font-size: 1.1rem;
+  color: #F5F5F5;
+  opacity: 0.9;
 `;
 
 const EventDetails = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 10px;
 `;
 
 const EventTitle = styled.h3`
-  font-size: 1.1rem;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.2rem;
   font-weight: 500;
 `;
 
 const EventLocation = styled.p`
-  font-size: 0.9rem;
-  color: #888;
+  font-size: 0.95rem;
+  color: #aaa;
+  font-family: 'Noto Serif JP', serif;
 `;
 
 const LoadingMessage = styled.div`
   text-align: center;
   padding: 50px;
   color: #888;
+  font-family: 'Inter', sans-serif;
 `;
 
 export const Schedule = () => {
@@ -85,10 +116,11 @@ export const Schedule = () => {
     // Simulate API fetch
     const fetchEvents = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-        setEvents(mockSchedules);
+        const data = await fetchSchedules();
+        setEvents(data);
         setLoading(false);
       } catch (err) {
+        console.error(err);
         setError('Failed to load schedule.');
         setLoading(false);
       }
@@ -127,14 +159,14 @@ export const Schedule = () => {
       <SectionTitle>UPCOMING</SectionTitle>
       <EventList>
         {upcomingEvents.length > 0 ? upcomingEvents.map(event => (
-          <EventItem key={event.id} initial={{ borderBottom: "1px solid transparent" }} whileHover={{ x: 10 }}>
+          <EventItem key={event.id} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }}>
             <EventDate>{event.date}</EventDate>
             <EventDetails>
               <EventTitle>{event.title}</EventTitle>
               <EventLocation>{event.location}</EventLocation>
             </EventDetails>
           </EventItem>
-        )) : <p>No upcoming events.</p>}
+        )) : <p style={{ fontFamily: 'Noto Serif JP', color: '#888' }}>現在予定されている公演はありません。</p>}
       </EventList>
 
       <SectionTitle>ARCHIVE</SectionTitle>

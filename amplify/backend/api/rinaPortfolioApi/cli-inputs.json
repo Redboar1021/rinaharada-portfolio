@@ -14,6 +14,13 @@
       "permissions": {
         "setting": "open"
       }
+    },
+    "/videos": {
+      "name": "/videos",
+      "lambdaFunction": "AppHandler",
+      "permissions": {
+        "setting": "open"
+      }
     }
   }
 }

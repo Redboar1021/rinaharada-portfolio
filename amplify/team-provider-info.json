@@ -24,16 +24,17 @@
       "function": {
         "AppHandler": {
           "deploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",
-          "s3Key": "amplify-builds/AppHandler-7a703848316f426e7956-build.zip"
+          "s3Key": "amplify-builds/AppHandler-39306471697a454d6f61-build.zip"
         },
         "ContactHandler": {
           "deploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",
-          "s3Key": "amplify-builds/ContactHandler-544278346f2f4b4a6161-build.zip"
+          "s3Key": "amplify-builds/ContactHandler-482f346e43573539316b-build.zip"
         }
       },
       "storage": {
         "Schedules": {},
-        "rinaphotos": {}
+        "rinaphotos": {},
+        "Videos": {}
       },
       "api": {
         "rinaPortfolioApi": {}

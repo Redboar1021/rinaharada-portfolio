@@ -1,0 +1,14 @@
+{
+  "resourceName": "Videos",
+  "tableName": "Videos",
+  "partitionKey": {
+    "fieldName": "id",
+    "fieldType": "string"
+  },
+  "sortKey": {
+    "fieldName": "displayOrder",
+    "fieldType": "number"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}

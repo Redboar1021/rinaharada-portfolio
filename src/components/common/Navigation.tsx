@@ -1,55 +1,126 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
+import { media } from '../../styles/media';
+import { SNSLinks } from './SNSLinks';
 
-const NavContainer = styled.nav`
+const NavContainer = styled.nav<{ $scrolled: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 2rem;
+  padding: 40px 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 1000;
-  mix-blend-mode: difference;
-  color: white;
+  z-index: 100;
+  transition: padding 0.3s ease, background 0.3s ease;
+  background: ${props => props.$scrolled ? 'rgba(18, 18, 18, 0.9)' : 'transparent'};
+  backdrop-filter: ${props => props.$scrolled ? 'blur(10px)' : 'none'};
+
+  ${media.tablet} {
+    padding: 30px 40px;
+  }
 
   @media (max-width: 768px) {
-    padding: 1.5rem;
+    padding: 20px 24px;
   }
 `;
 
-const Logo = styled(Link)`
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  font-size: 1.2rem;
+const LogoContainer = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: #F5F5F5;
+  z-index: 101;
+`;
+
+const LogoSubtitle = styled.span`
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  font-weight: 300;
+  margin-bottom: 2px;
+  opacity: 0.8;
+`;
+
+const LogoTitle = styled.span`
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
   letter-spacing: 0.1em;
+  font-weight: 400;
   text-transform: uppercase;
-  z-index: 1001;
+  line-height: 1;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const DesktopMenu = styled.div`
-  display: flex;
-  gap: 3rem;
+  display: none;
+  
+  ${media.desktop} {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+  }
+`;
 
-  @media (max-width: 768px) {
-    display: none;
+const NavLink = styled(Link, {
+  shouldForwardProp: (prop) => prop !== '$isActive'
+}) <{ $isActive?: boolean }>`
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem; 
+  letter-spacing: 0.1em; 
+  text-transform: uppercase;
+  color: #F5F5F5;
+  opacity: ${props => props.$isActive ? 1 : 0.6};
+  position: relative;
+  transition: opacity 0.3s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background-color: #F5F5F5;
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    opacity: 1;
+    &::after {
+      width: 100%;
+    }
   }
 `;
 
 const MobileMenuButton = styled.button`
-  display: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
   background: none;
   border: none;
   cursor: pointer;
-  z-index: 1001;
-  color: white;
-  padding: 0.5rem;
+  z-index: 101;
+  color: #F5F5F5;
+  padding: 10px;
 
-  @media (max-width: 768px) {
+  ${media.desktop} {
+    display: none;
+  }
+
+  span {
     display: block;
+    width: 24px;
+    height: 1px;
+    background-color: currentColor;
+    transition: all 0.3s ease;
   }
 `;
 
@@ -59,50 +130,23 @@ const MobileMenuOverlay = styled(motion.div)`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #111;
+  background-color: #121212;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
-  z-index: 1000;
-`;
-
-const NavLink = styled(Link) <{ $isActive?: boolean }>`
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  opacity: ${props => props.$isActive ? 1 : 0.6};
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: currentColor;
-    transform: scaleX(${props => props.$isActive ? 1 : 0});
-    transform-origin: right;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover {
-    opacity: 1;
-    &::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
+  gap: 3rem;
+  z-index: 100;
 `;
 
 const MobileNavLink = styled(Link)`
-  font-family: 'Noto Serif JP', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 2rem;
-  color: white;
-  opacity: 0.8;
+  color: #F5F5F5;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  transition: opacity 0.3s;
   
   &:hover {
     opacity: 1;
@@ -110,95 +154,78 @@ const MobileNavLink = styled(Link)`
 `;
 
 const LINKS = [
-    { path: '/', label: 'Home' },
-    { path: '/works', label: 'Works' },
-    { path: '/schedule', label: 'Schedule' },
-    { path: '/contact', label: 'Contact' },
+  { path: '/about', label: 'ABOUT' },
+  { path: '/works', label: 'WORKS' },
+  { path: '/schedule', label: 'SCHEDULE' },
+  { path: '/videos', label: 'VIDEOS' },
+  { path: '/lesson', label: 'LESSON' },
+  { path: '/contact', label: 'CONTACT' },
 ];
 
 export const Navigation = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
-    const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => setIsOpen(!isOpen);
 
-    // Hamburger icon paths
-    const Path = (props: any) => (
-        <motion.path
-            fill="transparent"
-            strokeWidth="2"
-            stroke="currentColor"
-            strokeLinecap="round"
-            {...props}
-        />
-    );
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    return (
-        <>
-            <NavContainer>
-                <Logo to="/" onClick={() => setIsOpen(false)}>Rina Harada</Logo>
+  return (
+    <>
+      <NavContainer $scrolled={scrolled}>
+        <LogoContainer to="/" onClick={() => setIsOpen(false)}>
+          <LogoSubtitle>PIANIST</LogoSubtitle>
+          <LogoTitle>Rina Harada</LogoTitle>
+        </LogoContainer>
 
-                <DesktopMenu>
-                    {LINKS.map(link => (
-                        <NavLink
-                            key={link.path}
-                            to={link.path}
-                            $isActive={location.pathname === link.path}
-                        >
-                            {link.label}
-                        </NavLink>
-                    ))}
-                </DesktopMenu>
+        <DesktopMenu>
+          {LINKS.map(link => (
+            <NavLink
+              key={link.path}
+              to={link.path}
+              $isActive={location.pathname === link.path}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </DesktopMenu>
 
-                <MobileMenuButton onClick={toggleMenu}>
-                    <svg width="23" height="23" viewBox="0 0 23 23">
-                        <Path
-                            variants={{
-                                closed: { d: "M 2 2.5 L 20 2.5" },
-                                open: { d: "M 3 16.5 L 17 2.5" }
-                            }}
-                            animate={isOpen ? "open" : "closed"}
-                        />
-                        <Path
-                            d="M 2 9.423 L 20 9.423"
-                            variants={{
-                                closed: { opacity: 1 },
-                                open: { opacity: 0 }
-                            }}
-                            transition={{ duration: 0.1 }}
-                            animate={isOpen ? "open" : "closed"}
-                        />
-                        <Path
-                            variants={{
-                                closed: { d: "M 2 16.346 L 20 16.346" },
-                                open: { d: "M 3 2.5 L 17 16.346" }
-                            }}
-                            animate={isOpen ? "open" : "closed"}
-                        />
-                    </svg>
-                </MobileMenuButton>
-            </NavContainer>
+        <MobileMenuButton onClick={toggleMenu} aria-label="Menu">
+          <span style={{ transform: isOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none' }} />
+          <span style={{ opacity: isOpen ? 0 : 1 }} />
+          <span style={{ transform: isOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none' }} />
+        </MobileMenuButton>
+      </NavContainer>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <MobileMenuOverlay
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {LINKS.map(link => (
-                            <MobileNavLink
-                                key={link.path}
-                                to={link.path}
-                                onClick={() => setIsOpen(false)}
-                            >
-                                {link.label}
-                            </MobileNavLink>
-                        ))}
-                    </MobileMenuOverlay>
-                )}
-            </AnimatePresence>
-        </>
-    );
+      <AnimatePresence>
+        {isOpen && (
+          <MobileMenuOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {LINKS.map(link => (
+              <MobileNavLink
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+              >
+                {link.label}
+              </MobileNavLink>
+            ))}
+            <SNSLinks className="mt-8" />
+          </MobileMenuOverlay>
+        )}
+      </AnimatePresence>
+    </>
+  );
 };
+

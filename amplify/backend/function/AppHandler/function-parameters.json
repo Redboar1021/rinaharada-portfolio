@@ -6,6 +6,12 @@
         "read",
         "update",
         "delete"
+      ],
+      "Videos": [
+        "create",
+        "read",
+        "update",
+        "delete"
       ]
     }
   },

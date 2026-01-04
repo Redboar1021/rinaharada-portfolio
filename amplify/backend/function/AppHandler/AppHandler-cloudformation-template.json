@@ -27,6 +27,18 @@
     "storageSchedulesStreamArn": {
       "Type": "String",
       "Default": "storageSchedulesStreamArn"
+    },
+    "storageVideosName": {
+      "Type": "String",
+      "Default": "storageVideosName"
+    },
+    "storageVideosArn": {
+      "Type": "String",
+      "Default": "storageVideosArn"
+    },
+    "storageVideosStreamArn": {
+      "Type": "String",
+      "Default": "storageVideosStreamArn"
     }
   },
   "Conditions": {
@@ -90,6 +102,15 @@
             },
             "STORAGE_SCHEDULES_STREAMARN": {
               "Ref": "storageSchedulesStreamArn"
+            },
+            "STORAGE_VIDEOS_NAME": {
+              "Ref": "storageVideosName"
+            },
+            "STORAGE_VIDEOS_ARN": {
+              "Ref": "storageVideosArn"
+            },
+            "STORAGE_VIDEOS_STREAMARN": {
+              "Ref": "storageVideosStreamArn"
             }
           }
         },
@@ -231,6 +252,43 @@
                     [
                       {
                         "Ref": "storageSchedulesArn"
+                      },
+                      "index/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:Put*",
+                "dynamodb:Create*",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PartiQLInsert",
+                "dynamodb:Get*",
+                "dynamodb:BatchGetItem",
+                "dynamodb:List*",
+                "dynamodb:Describe*",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:PartiQLSelect",
+                "dynamodb:Update*",
+                "dynamodb:RestoreTable*",
+                "dynamodb:PartiQLUpdate",
+                "dynamodb:Delete*",
+                "dynamodb:PartiQLDelete"
+              ],
+              "Resource": [
+                {
+                  "Ref": "storageVideosArn"
+                },
+                {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      {
+                        "Ref": "storageVideosArn"
                       },
                       "index/*"
                     ]

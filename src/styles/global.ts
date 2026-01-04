@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 
 export const globalStyles = css`
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500&family=Noto+Serif+JP:wght@300;400;500&display=swap');
 
   *, *::before, *::after {
     box-sizing: border-box;
@@ -11,23 +11,29 @@ export const globalStyles = css`
 
   html, body {
     width: 100%;
-    height: 100%;
-    font-family: 'Inter', 'Noto Serif JP', sans-serif;
-    background-color: #fcfcfc; /* Off-white for clean look */
-    color: #333;
-    line-height: 1.6;
+    min-height: 100vh;
+    font-family: 'Inter', 'Noto Serif JP', serif;
+    background-color: #121212;
+    color: #F5F5F5;
+    line-height: 1.8;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
   }
 
+  /* Selection color for premium feel */
+  ::selection {
+    background: rgba(200, 200, 200, 0.2);
+    color: #fff;
+  }
+
   a {
     text-decoration: none;
     color: inherit;
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
     
     &:hover {
-      opacity: 0.7;
+      opacity: 0.8;
     }
   }
 
