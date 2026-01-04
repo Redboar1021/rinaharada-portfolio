@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "paths": {
+    "/schedules": {
+      "name": "/schedules",
+      "lambdaFunction": "AppHandler",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/contact": {
+      "name": "/contact",
+      "lambdaFunction": "ContactHandler",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}

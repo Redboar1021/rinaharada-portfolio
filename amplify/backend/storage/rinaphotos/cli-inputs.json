@@ -1,0 +1,16 @@
+{
+  "resourceName": "rinaphotos",
+  "policyUUID": "6ad6982d",
+  "bucketName": "rinaharadaportfolio3792b71aedfb4842a246df4c5ce6",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

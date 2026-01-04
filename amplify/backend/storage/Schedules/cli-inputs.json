@@ -1,0 +1,14 @@
+{
+  "resourceName": "Schedules",
+  "tableName": "Schedules",
+  "partitionKey": {
+    "fieldName": "id",
+    "fieldType": "string"
+  },
+  "sortKey": {
+    "fieldName": "date",
+    "fieldType": "string"
+  },
+  "gsi": [],
+  "triggerFunctions": []
+}

@@ -1,0 +1,43 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-rinaharadaportfolio-dev-75898-authRole",
+      "UnauthRoleArn": "arn:aws:iam::527191693341:role/amplify-rinaharadaportfolio-dev-75898-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::527191693341:role/amplify-rinaharadaportfolio-dev-75898-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",
+      "UnauthRoleName": "amplify-rinaharadaportfolio-dev-75898-unauthRole",
+      "StackName": "amplify-rinaharadaportfolio-dev-75898",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:527191693341:stack/amplify-rinaharadaportfolio-dev-75898/7927bb80-e983-11f0-bc62-060c56f63c7b",
+      "AmplifyAppId": "d3reab8yf1uqcr"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d3reab8yf1uqcr",
+          "type": "cicd"
+        }
+      },
+      "auth": {
+        "rinaharadaportfolio0ec45782": {}
+      },
+      "function": {
+        "AppHandler": {
+          "deploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",
+          "s3Key": "amplify-builds/AppHandler-7a703848316f426e7956-build.zip"
+        },
+        "ContactHandler": {
+          "deploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",
+          "s3Key": "amplify-builds/ContactHandler-544278346f2f4b4a6161-build.zip"
+        }
+      },
+      "storage": {
+        "Schedules": {},
+        "rinaphotos": {}
+      },
+      "api": {
+        "rinaPortfolioApi": {}
+      }
+    }
+  }
+}

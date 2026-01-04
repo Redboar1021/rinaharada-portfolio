@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "storage": {
+      "Schedules": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}
