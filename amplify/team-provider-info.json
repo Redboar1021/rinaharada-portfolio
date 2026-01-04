@@ -24,7 +24,7 @@
       "function": {
         "AppHandler": {
           "deploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",
-          "s3Key": "amplify-builds/AppHandler-39306471697a454d6f61-build.zip"
+          "s3Key": "amplify-builds/AppHandler-526a746f625368446e58-build.zip"
         },
         "ContactHandler": {
           "deploymentBucketName": "amplify-rinaharadaportfolio-dev-75898-deployment",

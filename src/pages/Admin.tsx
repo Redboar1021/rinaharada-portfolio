@@ -2,6 +2,8 @@ import styled from '@emotion/styled';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { useState } from 'react';
+import { ScheduleManager } from '../components/admin/ScheduleManager';
+import { VideoManager } from '../components/admin/VideoManager';
 
 const AdminContainer = styled.div`
   min-height: 100vh;
@@ -86,62 +88,45 @@ const PanelTitle = styled.h2`
   border-bottom: 1px solid #eee;
 `;
 
-// Mock components for different management sections
-const ManageSchedule = () => (
-    <div>
-        <h3>Manage Schedule</h3>
-        <p>List of events (Mock for now)</p>
-        {/* Implementation would go here */}
-    </div>
-);
-
-const ManageVideos = () => (
-    <div>
-        <h3>Manage Videos</h3>
-        <p>Video list (Mock for now)</p>
-        {/* Implementation would go here */}
-    </div>
-);
-
 export const Admin = () => {
-    const [activeTab, setActiveTab] = useState<'schedule' | 'videos'>('schedule');
+  const [activeTab, setActiveTab] = useState<'schedule' | 'videos'>('schedule');
 
-    return (
-        <Authenticator>
-            {({ signOut, user }: { signOut?: any; user?: any }) => (
-                <AdminContainer>
-                    <AdminHeader>
-                        <HeaderTitle>Rina Harada Portfolio - Admin</HeaderTitle>
-                        <div>
-                            <span style={{ marginRight: '20px', fontSize: '0.9rem' }}>{user?.username}</span>
-                            <SignOutButton onClick={signOut}>Sign Out</SignOutButton>
-                        </div>
-                    </AdminHeader>
+  return (
+    <Authenticator>
+      {({ signOut, user }: { signOut?: any; user?: any }) => (
+        <AdminContainer>
+          <AdminHeader>
+            <HeaderTitle>Rina Harada Portfolio - Admin</HeaderTitle>
+            <div>
+              <span style={{ marginRight: '20px', fontSize: '0.9rem' }}>{user?.username}</span>
+              <SignOutButton onClick={signOut}>Sign Out</SignOutButton>
+            </div>
+          </AdminHeader>
 
-                    <AdminContent>
-                        <Sidebar>
-                            <SidebarItem
-                                isActive={activeTab === 'schedule'}
-                                onClick={() => setActiveTab('schedule')}
-                            >
-                                Schedule
-                            </SidebarItem>
-                            <SidebarItem
-                                isActive={activeTab === 'videos'}
-                                onClick={() => setActiveTab('videos')}
-                            >
-                                Videos
-                            </SidebarItem>
-                        </Sidebar>
+          <AdminContent>
+            <Sidebar>
+              <SidebarItem
+                isActive={activeTab === 'schedule'}
+                onClick={() => setActiveTab('schedule')}
+              >
+                Schedule
+              </SidebarItem>
+              <SidebarItem
+                isActive={activeTab === 'videos'}
+                onClick={() => setActiveTab('videos')}
+              >
+                Videos
+              </SidebarItem>
+            </Sidebar>
 
-                        <ContentPanel>
-                            <PanelTitle>{activeTab === 'schedule' ? 'Schedule Management' : 'Video Management'}</PanelTitle>
-                            {activeTab === 'schedule' && <ManageSchedule />}
-                            {activeTab === 'videos' && <ManageVideos />}
-                        </ContentPanel>
-                    </AdminContent>
-                </AdminContainer>
-            )}
-        </Authenticator>
-    );
+            <ContentPanel>
+              <PanelTitle>{activeTab === 'schedule' ? 'Schedule Management' : 'Video Management'}</PanelTitle>
+              {activeTab === 'schedule' && <ScheduleManager />}
+              {activeTab === 'videos' && <VideoManager />}
+            </ContentPanel>
+          </AdminContent>
+        </AdminContainer>
+      )}
+    </Authenticator>
+  );
 };
