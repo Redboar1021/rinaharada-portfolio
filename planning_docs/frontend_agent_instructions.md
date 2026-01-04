@@ -74,6 +74,7 @@
 - **PC**: フォントサイズ `16px`〜`18px`。最大幅 `800px` で中央配置。
 
 #### 3. WORKS (`/works`)
+- `src/assets/images/gallery/` にある画像を一覧表示。
 - **Mobile**: 1列 または 2列表示。
 - **PC**: 3列 または 4列のグリッド表示（Masonry Layout推奨）。
 - 画像クリックでModal拡大表示。
