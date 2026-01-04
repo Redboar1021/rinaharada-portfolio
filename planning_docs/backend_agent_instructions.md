@@ -1,55 +1,62 @@
 # バックエンド開発指示書 (Target: amplify/)
 
 あなたは `amplify/` ディレクトリ配下（AWSインフラおよびバックエンドロジック）の開発を担当するバックエンドエンジニアAIです。
-別紙 `project_shared_rules.md` の共通ルールを遵守し、以下の指示に従って実装を行ってください。
+別紙 `project_shared_rules.md` の共通ルール、および最新の機能要件に対応するため、以下の指示に従ってください。
 
-## 1. 担当範囲
-- `amplify/` 配下の設定ファイル
-- API Gateway, DynamoDB, Lambda (Python), Cognito, S3 の構成
-- `amplify/backend/function/` 配下の Python コード
+## 1. データベース設計 (DynamoDB)
+以下のテーブルを作成（`amplify add api` 経由で設定）してください。
 
-## 2. 実装方針 (Amplify Gen 1)
-- 基本的に `amplify` コマンドベースでの構築を想定していますが、設定ファイル（`cloudformation` template等）の修正が必要な場合は指示してください。
-- Lambda関数は **Python** ランタイムを使用。
+### A. Schedules 
+- Partition Key: `id` (String - UUID)
+- Sort Key: `date` (String - ISO8601 Format)
+- Attributes:
+  - `title` (String): 公演名
+  - `location` (String): 場所
+  - `details` (String): 詳細テキスト
+  - `imageUrl` (String, nullable): チラシ等の画像URL (S3 Object URL)
+  - `isArchived` (Boolean): アーカイブフラグ（または日付による自動判定ロジックをLambdaで実装）
 
-## 3. 具体的な実装タスク
+### B. Videos (新規追加)
+要件「リンクは後々追加できるようにする」に対応します。
+- Partition Key: `id` (String - UUID)
+- Attributes:
+  - `url` (String): YouTube URL
+  - `title` (String): 動画タイトル
+  - `displayOrder` (Number): 表示順序
 
-### A. API & Database (`amplify add api`)
-- **API Type**: REST (API Gateway + Lambda)
-- **Path**: `/schedules`, `/contact`
-- **DynamoDB Table Name**: `Schedules`
-  - Partition Key: `id` (String - UUID)
-  - Sort Key: `date` (String - ISO8601 `YYYY-MM-DD`)
-  - GSI (Global Secondary Index): 必要に応じて `isArchived` 等で作成。
+## 2. ストレージ (S3)
+- **機能**: スケジュール詳細に載せる画像の保存先。
+- **設定**:
+  - `amplify add storage` で Content Storage (S3) を追加。
+  - **権限**:
+    - Auth Users (Admin): Create/Update/Delete/Read
+    - Guest Users (Public): Read Only
 
-### B. Lambda Functions (`amplify add function`)
+## 3. Lambda Functions & API
 
-#### 1. `AppHandler` (Python)
-- **役割**: スケジュール情報のCRUD操作。
-- **Libraries**: `boto3`
+### A. スケジュール API (`/schedules`)
+- `GET`: `Schedules` テーブルから全件取得。`displayOrder` または `date` でソート。
+- `POST/PUT/DELETE`: (Auth必須) データの更新。画像のアップロード自体はフロントエンドからS3へ直接行い、Lambdaには `imageUrl` 文字列のみを受け渡す設計を推奨。
+
+### B. ビデオ API (`/videos`)
+- `GET`: `Videos` テーブルから全件取得。
+- `POST/PUT/DELETE`: (Auth必須) 動画リンクの追加・編集。
+
+### C. お問い合わせ API (`/contact`)
+- **Method**: POST
+- **Input**: `{ name, email, message, source }`
+  - `source`: "contact" または "lesson" 等の文字列が入る。
 - **Logic**:
-  - `GET /schedules`: DynamoDBから全件取得し、日付順にソートしてJSON返却。
-  - `POST /schedules`: 認証済みユーザーのみ実行可能。データをバリデーションしてDynamoDBへPut。
+  - Amazon SES を使用してオーナーのメールアドレス (`rinaharada.piano@gmail.com`) へ送信。
+  - **件名**: `source` の値に応じて件名を変える（例: "【HP Contact】お問い合わせ", "【HP Lesson】レッスンのお申し込み"）。
+  - **本文**: 送信者の Name, Email, Message を整形して記載。
 
-#### 2. `ContactHandler` (Python)
-- **役割**: お問い合わせメール送信。
-- **Libraries**: `boto3` (SES)
-- **Logic**:
-  - `POST /contact`: JSONボディ (`name`, `email`, `message`) を受け取る。
-  - **Amazon SES** を使用して `rinaharada.piano@gmail.com` へメールを送信する。
-  - **Security**: スパム対策としてレートリミット等の考慮があると望ましい（今回はまずは機能実装優先）。
-  - **注意**: SESはSandbox環境の場合、検証済みメールアドレス以外への送信ができないため、AWSコンソールでの検証作業が必要であることをユーザーに通知すること。
+## 4. セキュリティ & 認証
+- **Cognito**: 管理者ユーザーのみがログインできるようにする。
+- **API Authorization**:
+  - GET (Read): `AWS_IAM` (for Guest) or `API Key` (Public)
+  - POST/PUT/DELETE (Write): `AMAZON_COGNITO_USER_POOLS` (Admin only)
+  - Amplify CLI での `function` へのアクセス権限付与を忘れずに行うこと。
 
-### C. Authentication (`amplify add auth`)
-- **Config**: Default configuration (Email/Password login).
-- **Admin**: オーナーのみがログインできれば良いため、サインアップは管理者のみが許可する設定か、単一固定ユーザーを作成する運用を想定。
-
-## 4. フロントエンド連携用情報の出力
-実装が完了したり、変更があった場合は、以下の情報をフロントエンド担当に伝達（または設定ファイルとして出力）してください。
-- API Endpoint URL
-- 必要なIAM権限（Frontendからの呼び出しに必要な場合）
-- S3 Bucket Name（画像アップロード用）
-
-## 5. 禁止事項
-- 複雑すぎるステートマシン（Step Functions）の導入（今回はLambda単体で完結させる）。
-- 不必要なAWSサービス（RDS, ElasticCache等）の追加。
+## 5. デプロイメント
+- 変更後の `amplify push` で、テーブル作成、Lambda更新、S3バケット作成が正しく行われることを確認する手順を含めること。
