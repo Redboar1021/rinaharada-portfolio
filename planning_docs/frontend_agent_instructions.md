@@ -15,69 +15,90 @@
 - **スタイリング**: `@emotion/styled` を使用。
 - **アニメーション**: `framer-motion` を使用し、スクロールに応じて各セクションが「ふわっ」と現れる演出を実装。
 
+### 重要: レスポンシブ対応 (Responsive Design)
+現在、デバイスサイズによる表示崩れが報告されています。以下を徹底してください。
+
+1. **モバイルファースト (Mobile First)**:
+   - 基本のスタイルは「スマートフォン」向けに記述する。
+   - PC向けのスタイルは `@media (min-width: ...)` 内に記述する。
+
+2. **ブレークポイントの定義**:
+   `src/styles/media.ts` を作成し、以下のように管理すること。
+   ```typescript
+   export const breakpoints = {
+     mobile: 480,
+     tablet: 768,
+     desktop: 1024,
+   };
+   
+   export const media = {
+     tablet: `@media (min-width: ${breakpoints.tablet}px)`,
+     desktop: `@media (min-width: ${breakpoints.desktop}px)`,
+   };
+   ```
+
+3. **index.css の初期化**:
+   - `src/index.css` にViteデフォルトの `display: flex; place-items: center;` 等が残っている場合は**必ず削除**する。これがあると画面全体が中央寄せになりレイアウトが崩れる。
+   - `width: 100%` を確保し、スクロールを妨げない設定にする。
+
 ## 3. 具体的な実装タスク
 
 ### A. 共通・ナビゲーション
-- **SNSアイコン**: 画面左下に固定表示。
-  - Instagram: `https://www.instagram.com/rinaharada_pf/?igsh=cm1odHFocHg3anIx&utm_source=qr`
-  - YouTube: `https://youtube.com/@rinaharada.klavier?si=i6KRfqWfoI8fvU6R`
-  - X (Twitter): `https://x.com/rinaharada_pf?s=21`
-- **Header**:
-  - 左上: 名前「RINA HARADA」（クリックでトップへ戻る）
-  - 右上: メニュー (ABOUT, WORKS, SCHEDULE, VIDEOS, LESSON, CONTACT, ENGLISH)
-  - スクロール追従せず固定。
+- **SNSアイコン**:
+  - **Mobile**: 画面下部あるいはメニュー内に配置（指で押しやすい位置）。
+  - **PC**: 画面左下に固定表示。
+  - Links:
+    - Instagram: `https://www.instagram.com/rinaharada_pf/?igsh=cm1odHFocHg3anIx&utm_source=qr`
+    - YouTube: `https://youtube.com/@rinaharada.klavier?si=i6KRfqWfoI8fvU6R`
+    - X (Twitter): `https://x.com/rinaharada_pf?s=21`
+
+- **Header / Navigation**:
+  - **PC**: 右上にテキストリンク (`ABOUT`, `WORKS`...) を横並びで固定表示。
+  - **Mobile**: 右上にハンバーガーメニュー（`≡`）を配置。タップすると全画面あるいはドロワーでメニューが開く実装。
+  - 左上の名前「RINA HARADA」は常に表示。
 
 ### B. ページ詳細要件
 
 #### 1. HOME (`/`)
-- **First View**: `public/images/home/home.jpg` を美しく配置。
+- **First View (Hero)**:
+  - 画像 (`home.jpg`) を `100vh` (画面いっぱい) に表示。
+  - `object-fit: cover` を使用し、スマホでもPCでも画像が歪まないようにする。
 - **スクロール体験**:
-  1. Top (Image)
-  2. Works Preview (数枚の画像をピックアップ表示)
-  3. Schedule Preview (直近のイベントを表示)
-  4. Contact Link
-- 各セクションへのスムーズスクロール、またはルーティング遷移（SPAとしてスムーズに切り替わること）。
+  - スクロールで Works Preview -> Schedule Preview -> Contact Link が順次フェードイン。
+  - **Mobile**: 各セクションを縦積みし、十分な余白（`80px`〜）を取る。
+  - **PC**: コンテンツ幅を最大 `1200px` 程度に制限し、中央揃えにする（`max-width` + `margin: 0 auto`）。
 
 #### 2. ABOUT (`/about`)
-- 文言は以下のテキストを使用（適宜改行タグ `<br />` や段落 `<p>` で整形すること）。
-  > 1997年生まれ。奈良県奈良市出身。3歳よりピアノを始める。第9回ヴィーゴ国際ピアノコンクール第2位。第15回東京音楽コンクールピアノ部門第2位。第26回アルトゥール・シュナーベルコンクール第2位(1位無し)。第25回スペイン作曲家国際ピアノコンクールセミファイナル出場。第19回シューマン国際コンクールピアノ部門セミファイナル出場。ピティナ・ピアノコンペティションA2、A1、B、D、G級全国大会ベスト賞、銅賞、ANA賞。第45回ピティナ特級セミファイナリスト。第1回Napolinova World Piano E-Competition第4位。第13回宝塚ベガ学生ピアノコンクール高校の部第1位及び宝塚演奏家連盟賞受賞。第15回ローゼンストック国際ピアノコンクール第2位(1位なし)。Wiener Musikseminarにて、教授推薦によるディヒラーコンクール第1位。NHK-FM大阪放送局「リサイタル・パッシオ」に出演し、その演奏は全国放送された。ギタリストの山田唯雄と共にNHK BS8Kプレミアムコンサートに出演。藝大モーニングコンサート、フレッシュ名曲コンサート、東京文化会館 上野deクラシック等、演奏会に多数出演。小林研一郎、山下一史、梅田俊明、大井剛史、鈴木優人、藤岡幸夫、三ツ橋敬子の各氏の指揮のもと、日本フィルハーモニー交響楽団、東京フィルハーモニー交響楽団、藝大フィルハーモニア管弦楽団、関西フィルハーモニー管弦楽団と共演。また、A.Kobrin、H.Barda、J.Jiracek、J.Rouvier等、著名な音楽家のレッスンを受講し研鑽を積む。これまでに辰巳千里、土居知子、福井尚子、坂井千春の各氏に、現在ベルリン芸術大学マスターピアノソリスト科にてGottlieb Wallisch氏に師事。ピティナ新人指導者賞受賞。宗次エンジェル基金/日本演奏連盟新進演奏家国内奨学金制度2021・2022年度奨学生。令和5年度文化庁新進芸術家海外派遣制度1年研修員。公益財団法人2025年度ロームミュージックファンデーション奨学生。京都市立京都堀川音楽高等学校を経て、東京藝術大学音楽学部器楽科卒業。同大学院修士課程修了。
+- テキストの可読性重視。
+- **Mobile**: フォントサイズ `14px`〜`16px`、行間広め。左右パディング `20px`。
+- **PC**: フォントサイズ `16px`〜`18px`。最大幅 `800px` で中央配置。
 
 #### 3. WORKS (`/works`)
-- `public/images/gallery/` にある画像を一覧表示。
-- Masonry Layout（組積レイアウト）などのモダンなグリッドデザイン推奨。
-- 画像クリックで拡大表示（Modal）。
+- **Mobile**: 1列 または 2列表示。
+- **PC**: 3列 または 4列のグリッド表示（Masonry Layout推奨）。
+- 画像クリックでModal拡大表示。
 
 #### 4. SCHEDULE (`/schedule`)
-- APIから取得したデータをリスト表示（日付、タイトル、場所）。
-- 終了した公演は「ARCHIVE」エリアに表示。
-- 詳細クリックでモーダルまたは別ページへ遷移（画像の表示スペースも確保）。
+- リスト表示。
+- **Mobile**: 日付とイベント名を縦積みにする等、狭い幅でも崩れないレイアウト。
+- **PC**: 日付・タイトル・場所を横並びテーブルライクに表示。
 
 #### 5. VIDEOS (`/videos`)
-- APIから動画リストを取得して表示することを基本とするが、初期データとして以下を実装。
-  1. `https://youtu.be/VyNNztb1Irk?si=CaPyQ_x2FZValVHq`
-  2. `https://youtu.be/hOwu3BFWlRo?si=llmGBUaOkSdmugaf`
-  3. `https://youtu.be/Bm7bVQI_MnE?si=MGDj1WzxY1sjsLVT`
-- YouTube埋め込みプレーヤーを使用。
+- YouTube埋め込み (`iframe`)。
+- `width: 100%`, `aspect-ratio: 16 / 9` を指定し、どのデバイスでもアスペクト比を維持してレスポンシブに可変させること。
 
 #### 6. LESSON (`/lesson`)
-- **概要文（案）**:
-  > 「初心者からプロフェッショナルを目指す方まで、一人ひとりの目標と感性に寄り添った丁寧な指導を行います。東京・奈良を拠点に、国内・海外での経験を活かしたアドバイスをさせていただきます。オンラインレッスンにも対応していますので、お気軽にご相談ください。」
-- **お問い合わせフォーム**:
-  - Contactページと同様のフォームをページ下部に配置。
-  - 送信時、システム内部で「Source: Lesson」と識別できるようにAPIへパラメータを送ること。
+- コンテンツ幅を適切に制限し、文章を読みやすくする。
+- 問い合わせフォームへの導線を明確に。
 
 #### 7. CONTACT (`/contact`)
-- フォーム項目: Name, Email, Message
-- 送信先: バックエンドAPIへPOST。
-- 送信完了後、サンクスメッセージを表示。
+- フォーム部品（Input, Textarea）はモバイルでタップしやすい高さ（`44px`以上）を確保する。
+- `font-size: 16px` 以上にして、iOSでの入力時ズームを防ぐ。
 
 ### C. 管理画面 (`/admin`)
-- **認証**: Cognitoを使用（Amplify Authenticator UIを使用すると簡単）。
-- **機能**:
-  1. **スケジュール管理**: 新規投稿、編集、削除。画像アップロード機能（S3へアップロードしURLを取得）。
-  2. **動画管理**: YouTubeリンクの追加・削除。
-  3. **プロフィール/Works編集**: 開発工数が嵩むため今回は優先度低。まずはコードベース修正運用とするが、拡張性を考慮した設計にすること。
+- **認証**: Cognito (Amplify Authenticator)
+- PCでの操作を前提としても良いが、タブレット等でも崩れない程度にレスポンシブ対応する。
 
 ## 4. データ・State要件
-- 非同期通信中は適切なローディングインジケーターを表示すること（デザインを損なわないミニマルなもの）。
-- エラーハンドリング（ネットワークエラー等）を実装すること。
+- 非同期通信中のローディング表示。
+- エラーハンドリング。
